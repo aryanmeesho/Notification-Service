@@ -50,9 +50,6 @@ public class NotificationRestController {
               return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
           }
 
-          if(notificationService.checkIfExist(theNotification.getPhoneNumber()) == true ){
-              return new ResponseEntity<>("The Phone Number is blacklisted", HttpStatus.OK);
-          }
 
           // add notification to db
           notificationService.save(theNotification);
