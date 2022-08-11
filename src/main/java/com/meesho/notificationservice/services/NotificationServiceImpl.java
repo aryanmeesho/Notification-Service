@@ -60,4 +60,10 @@ public class NotificationServiceImpl implements NotificationService {
         return redisTemplate.opsForSet().members(KEY) ;
     }
 
+    @Override
+    public boolean checkIfExist(String number) {
+        logger.info("checkIfExist, number = {}",number);
+            return redisTemplate.opsForSet().isMember(KEY, number);
+    }
+
 }

@@ -45,11 +45,13 @@ public class NotificationRestController {
     @PostMapping("/sms/send")
     public ResponseEntity<Object> addNotificatonRequest(@RequestBody Notification theNotification){
 
-        // TODO::check whether the number is blacklisted or not using REDIS
-
           if(theNotification.getPhoneNumber() == null || theNotification.getPhoneNumber().length() == 0){
               NotificationErrorResponse error = new NotificationErrorResponse("INVALID_REQUEST", "Phone Number is mandatory");
               return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+          }
+
+          if(notificationService.checkIfExist(theNotification.getPhoneNumber()) == true ){
+              return new ResponseEntity<>("The Phone Number is blacklisted", HttpStatus.OK);
           }
 
           // add notification to db

@@ -15,4 +15,6 @@ public interface NotificationService {
     public void whitelist(String number);
 
     public Set getAllBlacklistedNumbers();
+
+    boolean checkIfExist(String number);
 }
