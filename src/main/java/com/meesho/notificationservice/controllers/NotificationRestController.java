@@ -6,8 +6,10 @@ import com.meesho.notificationservice.entity.Notification;
 import com.meesho.notificationservice.exceptions.NotificationErrorResponse;
 import com.meesho.notificationservice.exceptions.NotificationSuccessResponse;
 import com.meesho.notificationservice.services.NotificationService;
-import com.meesho.notificationservice.services.kafka.ConsumerService;
 import com.meesho.notificationservice.services.kafka.ProducerService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/v1")
@@ -31,8 +34,6 @@ public class NotificationRestController {
         notificationService = theNotificationService;
         producerService = theProducerService;
     }
-
-
 
     @GetMapping("/notifications")
     public List<Notification> findAll() {
@@ -78,16 +79,14 @@ public class NotificationRestController {
     }
 
 
-
     @PostMapping("/blacklist")
     public ResponseEntity<String> addBlacklist(@RequestBody BlacklistNumbers theBlacklistNumbers){
 
         List<String> numbers = theBlacklistNumbers.getPhoneNumbers();
 
         for (String number : numbers) {
-            BlacklistNumber blacklistNumber = new BlacklistNumber(number);
-            notificationService.blacklist(blacklistNumber);
-            System.out.println(blacklistNumber);
+            notificationService.blacklist(number);
+            System.out.println(number);
         }
 
         return new ResponseEntity<>("Successfully blacklisted", HttpStatus.OK);
@@ -105,15 +104,15 @@ public class NotificationRestController {
 
     }
 
+
     @GetMapping("/blacklist")
-    public List<String> getBlacklistedNumbers(){
-        List<String> blacklistNumbers = new ArrayList<>();
-        List<BlacklistNumber> result = notificationService.getAllBlacklistedNumbers();
+    public Set getBlacklistedNumbers(){
+       // List<String> blacklistNumbers = new ArrayList<>();
 
-        for(BlacklistNumber number: result){
-              blacklistNumbers.add(number.getPhoneNumber());
-        }
-        return blacklistNumbers;
+        Set result = notificationService.getAllBlacklistedNumbers();
+//        for(BlacklistNumber number: result){
+//              blacklistNumbers.add(number.getPhoneNumber());
+//        }
+        return result;
     }
-
 }
