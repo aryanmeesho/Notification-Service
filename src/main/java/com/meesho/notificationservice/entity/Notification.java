@@ -4,6 +4,9 @@ import com.meesho.notificationservice.entity.enums.Status;
 import com.sun.istack.NotNull;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 
 @Entity
 @Table(name = "sms_requests")
@@ -33,6 +36,28 @@ public class Notification {
 
     @Column(name = "failure_comment")
     private String failureComment;
+
+    @Column(name = "created_at")
+    private Date createdAt = new Date();
+
+    @Column(name = "updated_at")
+    private Date updatedAt;
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     // define Constructor
     public Notification(){

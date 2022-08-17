@@ -1,20 +1,18 @@
 package com.meesho.notificationservice.services.kafka;
 import com.meesho.notificationservice.entity.Notification;
 import com.meesho.notificationservice.repositories.NotificationRepository;
+import com.meesho.notificationservice.services.elasticsearch.ElasticSearchServiceImpl;
 import com.meesho.notificationservice.utils.constants.AppConstants;
 import com.meesho.notificationservice.utils.externalSmsApi.ThirdPartyConfig;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import javax.naming.ServiceUnavailableException;
 
 @Service
 public class ConsumerServiceImpl implements  ConsumerService{
@@ -55,16 +53,16 @@ public class ConsumerServiceImpl implements  ConsumerService{
 
 
         //step3: send message on phone no. using 3rd party API
-        try{
-            String response = thirdPartyConfig.thirdPartyApiCall(String.valueOf(notification.getId()),
-                    notification.getPhoneNumber(), notification.getMessage());
-
-            LOGGER.info(response);
-
-        }catch(Exception ex){
-            LOGGER.error(ex.getMessage());
-            LOGGER.info("Can't make it");
-        }
+//        try{
+//            String response = thirdPartyConfig.thirdPartyApiCall(String.valueOf(notification.getId()),
+//                    notification.getPhoneNumber(), notification.getMessage());
+//
+//            LOGGER.info(response);
+//
+//        }catch(Exception ex){
+//            LOGGER.error(ex.getMessage());
+//            LOGGER.info("Can't make it");
+//        }
 
     }
 

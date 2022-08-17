@@ -5,8 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 public class ExternalSmsRequest {
+
     @Autowired
-    private String deliveryChannel;
+    private String deliverychannel;
 
     @Autowired
     private Channels channels;
@@ -14,18 +15,18 @@ public class ExternalSmsRequest {
     @Autowired
     private List<Destination> destination;
 
-    public ExternalSmsRequest(String deliveryChannel, Channels channels, List<Destination> destination) {
-        this.deliveryChannel = deliveryChannel;
+    public ExternalSmsRequest(String deliverychannel, Channels channels, List<Destination> destination) {
+        this.deliverychannel = deliverychannel;
         this.channels = channels;
         this.destination = destination;
     }
 
-    public String getDeliveryChannel() {
-        return deliveryChannel;
+    public String getDeliverychannel() {
+        return deliverychannel;
     }
 
-    public void setDeliveryChannel(String deliveryChannel) {
-        this.deliveryChannel = deliveryChannel;
+    public void setDeliverychannel(String deliverychannel) {
+        this.deliverychannel = deliverychannel;
     }
 
     public Channels getChannels() {

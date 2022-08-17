@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,8 +24,14 @@ public class ThirdPartyConfig {
     @Value("${api.url}")
     private String url;
 
-    @Autowired
-    public RestTemplate restTemplate;
+//    @Value("${api.key}")
+    private String key = "93ceffda-5941-11ea-9da9-025282c394f2";
+
+    public RestTemplate restTemplate = new RestTemplateBuilder()
+                                        .rootUri(url)
+                                        .defaultHeader("key",key)
+                                        .defaultHeader("content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                        .build();;
 
     public String thirdPartyApiCall(String id, String phoneNumber, String message) {
 

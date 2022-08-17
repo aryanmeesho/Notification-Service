@@ -22,6 +22,7 @@ public class ProducerServiceImpl implements ProducerService{
     public void sendId(String id){
         logger.info(String.format("id sent -> %s", id));
         kafkaTemplate.send(TOPIC, id);
+
     }
 
 }
