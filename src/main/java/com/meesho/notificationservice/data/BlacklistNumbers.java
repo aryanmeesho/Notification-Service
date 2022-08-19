@@ -1,23 +1,13 @@
 package com.meesho.notificationservice.data;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BlacklistNumbers {
-
     private List<String> phoneNumbers;
-
-    public BlacklistNumbers() {
-    }
-
-    public BlacklistNumbers(List<String> phoneNumbers) {
-        this.phoneNumbers = phoneNumbers;
-    }
-
-    public List<String> getPhoneNumbers() {
-        return phoneNumbers;
-    }
-
-    public void setPhoneNumbers(List<String> phoneNumbers) {
-        this.phoneNumbers = phoneNumbers;
-    }
 }

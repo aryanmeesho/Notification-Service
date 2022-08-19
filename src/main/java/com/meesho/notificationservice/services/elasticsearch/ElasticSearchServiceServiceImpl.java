@@ -1,12 +1,10 @@
 package com.meesho.notificationservice.services.elasticsearch;
 
 import com.meesho.notificationservice.entity.ElasticSearchModal;
-import com.meesho.notificationservice.entity.requests.SmsRequestBody;
-import com.meesho.notificationservice.entity.responses.SmsResponseBody;
-import com.meesho.notificationservice.exceptions.Response;
+import com.meesho.notificationservice.entity.requests.ElasticSearchRequest;
+import com.meesho.notificationservice.entity.responses.ElasticSearchResponse;
 import com.meesho.notificationservice.repositories.ESRepository;
-import lombok.RequiredArgsConstructor;
-import net.bytebuddy.implementation.bytecode.Throw;
+import com.meesho.notificationservice.utils.constants.AppConstants;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
@@ -18,28 +16,29 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.elasticsearch.core.query.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ElasticSearchServiceImpl implements  ElasticSearch {
-    Logger logger = LoggerFactory.getLogger(ElasticSearchServiceImpl.class);
-    public static final int DEFAULT_PAGE_SIZE = 5;
+public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
+    Logger logger = LoggerFactory.getLogger(ElasticSearchServiceServiceImpl.class);
+    public static final int DEFAULT_PAGE_SIZE = AppConstants.DEFAULT_PAGE_SIZE;
 
     @Autowired
     public ESRepository esRepository;
 
-    private static final String SMS_INDEX = "sms_requests1";
+    private static final String SMS_INDEX = AppConstants.SMS_INDEX;
+
     private final ElasticsearchOperations elasticsearchOperations;
+
+    public ElasticSearchServiceServiceImpl(ElasticsearchOperations elasticsearchOperations) {
+        this.elasticsearchOperations = elasticsearchOperations;
+    }
 
     @Override
     public Page<ElasticSearchModal> findAll(){ return (Page<ElasticSearchModal>) esRepository.findAll(); }
@@ -47,23 +46,18 @@ public class ElasticSearchServiceImpl implements  ElasticSearch {
     @Override
     public void deleteId(String id){ esRepository.deleteAll();}
     @Override
-    public void createSmsIndex(ElasticSearchModal elasticSearchModal) throws Exception{
-
-
-        logger.info("creating SMS Index");
-
-        try {
-            esRepository.save(elasticSearchModal);
-        }
-        catch (Exception exc){
-            logger.info("Exc : " + exc);
-        }
-
-        logger.info("SMS Index Created Successfully");
+    public void createSmsIndex(ElasticSearchModal elasticSearchModal) {
+            logger.info("Creating Elastic Search SMS");
+            try {
+                ElasticSearchModal response = esRepository.save(elasticSearchModal);
+            }
+            catch (Exception exc){
+                logger.info("Some error: " + exc);
+            }
     }
 
     @Override
-    public SmsResponseBody findSmsContainsText(SmsRequestBody smsRequestBody, int pageNo) throws Exception {
+    public ElasticSearchResponse findSmsContainsText(ElasticSearchRequest smsRequestBody, int pageNo) throws Exception {
 
         String searchText = smsRequestBody.getSearchText();
         QueryBuilder queryBuilder = QueryBuilders.wildcardQuery("message", searchText + "*");
@@ -76,12 +70,12 @@ public class ElasticSearchServiceImpl implements  ElasticSearch {
         SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
                 .search(searchQuery, ElasticSearchModal.class, IndexCoordinates.of(SMS_INDEX));
 
-        return SmsResponseBody.builder().data(smsRecordSearchHits.stream()
+        return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
                 .map(SearchHit::getContent).collect(Collectors.toList())).build();
     }
 
     @Override
-    public SmsResponseBody findBetweenTime(SmsRequestBody smsRequestBody, int pageNo) throws Exception {
+    public ElasticSearchResponse findBetweenTime(ElasticSearchRequest smsRequestBody, int pageNo) throws Exception {
 
         Date lStartTime = smsRequestBody.getStartTime();
         Date lEndTime = smsRequestBody.getEndTime();
@@ -101,24 +95,18 @@ public class ElasticSearchServiceImpl implements  ElasticSearch {
                 .greaterThan(lStartTime)
                 .lessThan(lEndTime);
 
-
-        logger.info("criteria is : " + criteria);
-
         Query searchQuery = new CriteriaQuery(criteria);
         searchQuery.setPageable(PageRequest.of(pageNo, DEFAULT_PAGE_SIZE));
 
-        logger.info("searchQuery is : " + searchQuery);
 
-            SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
+        SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
                     .search(searchQuery, ElasticSearchModal.class, IndexCoordinates.of(SMS_INDEX));
 
-        logger.info("smsRecordSearchHits is : " + smsRecordSearchHits);
+//        if (smsRecordSearchHits.getTotalHits() <= pageNo * DEFAULT_PAGE_SIZE) {
+//            throw new Exception("No more results to show");
+//        }
 
-        if (smsRecordSearchHits.getTotalHits() <= pageNo * DEFAULT_PAGE_SIZE) {
-            throw new Exception("No more results to show");
-        }
-
-        return SmsResponseBody.builder().data(smsRecordSearchHits.stream()
+        return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
                 .map(SearchHit::getContent).collect(Collectors.toList())).build();
     }
 

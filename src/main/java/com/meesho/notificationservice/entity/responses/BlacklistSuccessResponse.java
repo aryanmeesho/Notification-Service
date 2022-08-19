@@ -1,4 +1,4 @@
-package com.meesho.notificationservice.data.request;
+package com.meesho.notificationservice.entity.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Text {
-    private String text;
+public class BlacklistSuccessResponse {
+    private String data;
 }

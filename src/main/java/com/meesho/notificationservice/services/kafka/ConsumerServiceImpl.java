@@ -1,10 +1,8 @@
 package com.meesho.notificationservice.services.kafka;
 import com.meesho.notificationservice.entity.Notification;
 import com.meesho.notificationservice.repositories.NotificationRepository;
-import com.meesho.notificationservice.services.elasticsearch.ElasticSearchServiceImpl;
 import com.meesho.notificationservice.utils.constants.AppConstants;
 import com.meesho.notificationservice.utils.externalSmsApi.ThirdPartyConfig;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
 
 @Service
 public class ConsumerServiceImpl implements  ConsumerService{
@@ -42,8 +39,8 @@ public class ConsumerServiceImpl implements  ConsumerService{
         LOGGER.info(String.format("Message received -> %s", id));
 
         // step1: find notification using ID
-        int requestId = Integer.valueOf(id);
-        Notification notification = notificationRepository.findAll().get(requestId-1);
+        String requestId = id;
+        Notification notification = notificationRepository.findById(requestId).get();;
 
         //step2: check whether the phone no. is blacklisted or not using redis
         if(redisTemplate.opsForSet().isMember(KEY, notification.getPhoneNumber()) == true){

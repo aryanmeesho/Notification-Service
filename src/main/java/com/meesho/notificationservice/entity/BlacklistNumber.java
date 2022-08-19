@@ -1,12 +1,17 @@
 package com.meesho.notificationservice.entity;
 
 import com.sun.istack.NotNull;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import javax.persistence.*;
-import java.util.List;
+
 
 @Entity
 @Table(name = "blacklist_numbers")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BlacklistNumber {
 
     @Id
@@ -18,26 +23,8 @@ public class BlacklistNumber {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    public BlacklistNumber() {
-    }
-
-    public BlacklistNumber(String phoneNumber) {
+    public BlacklistNumber (String phoneNumber){
         this.phoneNumber = phoneNumber;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }

@@ -3,14 +3,12 @@ package com.meesho.notificationservice.utils.externalSmsApi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meesho.notificationservice.data.request.ExternalSmsRequest;
-import com.meesho.notificationservice.exceptions.Response;
-import com.meesho.notificationservice.services.kafka.ConsumerServiceImpl;
+import com.meesho.notificationservice.entity.responses.ThirdPartyApiResponse;
+import com.meesho.notificationservice.utils.constants.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,14 +16,11 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class ThirdPartyConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyConfig.class);
-    @Autowired
+
     SmsBuilder smsBuilder;
 
-    @Value("${api.url}")
-    private String url;
-
-//    @Value("${api.key}")
-    private String key = "93ceffda-5941-11ea-9da9-025282c394f2";
+    private String url = AppConstants.URL;
+    private String key = AppConstants.KEY;
 
     public RestTemplate restTemplate = new RestTemplateBuilder()
                                         .rootUri(url)
@@ -47,7 +42,7 @@ public class ThirdPartyConfig {
             JsonNode transId =      responseNode.path("transid");
 
             if(transId.toString().length()>0){
-                return mapper.treeToValue(responseNode, Response.class).toString();
+                return mapper.treeToValue(responseNode, ThirdPartyApiResponse.class).toString();
             }else{
                 return responseNode.get(0).toString();
             }
