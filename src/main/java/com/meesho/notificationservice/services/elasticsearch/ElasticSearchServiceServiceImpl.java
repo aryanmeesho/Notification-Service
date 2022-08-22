@@ -68,10 +68,10 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
     public void createSmsIndex(ElasticSearchModal elasticSearchModal) throws Exception {
             logger.info("Creating Elastic Search SMS");
             try {
-                ElasticSearchModal response = esRepository.save(elasticSearchModal);
+                esRepository.save(elasticSearchModal);
             }
             catch (Exception exc){
-                throw new Exception("createSmsIndex Query Execution Failed in ESServiceImpl, Error : " + exc.getMessage());
+                logger.error("Elastic Search Common Error : " + exc.getMessage());
             }
     }
 

@@ -2,6 +2,7 @@ package com.meesho.notificationservice.controllers;
 
 import com.meesho.notificationservice.data.BlacklistNumbers;
 import com.meesho.notificationservice.entity.requests.SmsRequest;
+import com.meesho.notificationservice.exceptions.InvalidRequestException;
 import com.meesho.notificationservice.utils.Converters;
 import com.meesho.notificationservice.entity.ElasticSearchModal;
 import com.meesho.notificationservice.entity.Notification;
@@ -32,14 +33,12 @@ public class NotificationRestController {
     private static final Logger log = LoggerFactory.getLogger(NotificationRestController.class);
     private NotificationService notificationService;
     private ProducerService producerService;
-    private Converters converter;
     private ElasticSearchService elasticSearchService;
 
     @Autowired
-    public NotificationRestController(Converters theConverter, ElasticSearchService theElasticSearchService, NotificationService theNotificationService, ProducerService theProducerService) {
+    public NotificationRestController(ElasticSearchService theElasticSearchService, NotificationService theNotificationService, ProducerService theProducerService) {
         notificationService = theNotificationService;
         producerService = theProducerService;
-        converter = theConverter;
         elasticSearchService = theElasticSearchService;
     }
 
@@ -49,30 +48,16 @@ public class NotificationRestController {
     }
 
     @PostMapping("/sms/send")
-    public ResponseEntity<Object> addNotificatonRequest(@RequestBody SmsRequest theSmsRequest) throws Exception {
+    public ResponseEntity<Object> addNotificatonRequest(@RequestBody SmsRequest theSmsRequest) {
 
-          Notification theNotification = new Notification(theSmsRequest.getPhoneNumber(), theSmsRequest.getMessage());
-
-          // send failure response if phone number is null
-          if(PhoneNumberValidator.phoneNumberNullCheck(theNotification.getPhoneNumber()) == true){
-              NotificationErrorResponse error = new NotificationErrorResponse("INVALID_REQUEST", "Phone Number is mandatory");
-              return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-          }
-
-          // add notification to db
-          notificationService.save(theNotification);
-          String requestId = theNotification.getId();
-
-          // send id to kafka producer
-          producerService.sendId(requestId);
-
-          // add notification to ElasticSearchIndex
-          ElasticSearchModal elasticSearchModal = converter.notiToES(theNotification);
-          elasticSearchService.createSmsIndex(elasticSearchModal);
-
-          // send success response
-          NotificationSuccessResponse data = new NotificationSuccessResponse(requestId, "Successfully Sent");
-          return new ResponseEntity<>(new SendNotificationSuccessResponse(data), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(notificationService.save(theSmsRequest), HttpStatus.OK);
+        } catch (InvalidRequestException exc) {
+            return new ResponseEntity<>(new NotificationErrorResponse("INVALID_REQUEST", exc.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception exc){
+            return new ResponseEntity<>(new NotificationErrorResponse("SMS SERVICE DOWN", exc.getMessage()), HttpStatus.SERVICE_UNAVAILABLE);
+        }
     }
 
     @GetMapping("/sms/{request_id}")

@@ -29,7 +29,7 @@ public class Notification {
     private String message;
 
     @Column(name = "status")
-    private String status = "QUEUED";
+    private String status;
 
     @Column(name = "failure_code")
     private int failureCode;

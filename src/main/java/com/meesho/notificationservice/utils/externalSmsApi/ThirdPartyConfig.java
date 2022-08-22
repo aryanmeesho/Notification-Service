@@ -17,7 +17,8 @@ import org.springframework.web.client.RestTemplate;
 public class ThirdPartyConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyConfig.class);
 
-    SmsBuilder smsBuilder;
+    @Autowired
+    private SmsBuilder smsBuilder;
 
     private String url = AppConstants.URL;
     private String key = AppConstants.KEY;
