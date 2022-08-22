@@ -51,7 +51,6 @@ public class ConsumerServiceImpl implements  ConsumerService{
     @Autowired
     private ThirdPartyConfig thirdPartyConfig;
 
-
     @KafkaListener(topics = AppConstants.TOPIC_NAME, groupId = AppConstants.GROUP_ID)
     @Override
     public void setId(String id) throws Exception {
@@ -63,7 +62,7 @@ public class ConsumerServiceImpl implements  ConsumerService{
 
 
         // step 2: send message on phone no. using 3rd party API
-        // notificationService.thirdPartySmsHandler(notification);
+        //  notificationService.thirdPartySmsHandler(notification);
 
 
         // step 3: add notification to ElasticSearchIndex

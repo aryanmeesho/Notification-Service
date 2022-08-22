@@ -2,6 +2,7 @@ package com.meesho.notificationservice;
 
 import com.meesho.notificationservice.entity.enums.ErrorCodes;
 import com.meesho.notificationservice.exceptions.ServiceNotAvailableException;
+import com.meesho.notificationservice.utils.constants.AppConstants;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;

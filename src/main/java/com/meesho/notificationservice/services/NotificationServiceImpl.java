@@ -74,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
             throw new InvalidRequestException("empty message can not be send", ErrorCodes.BAD_REQUEST_ERROR);
 
         // Blacklist CHECK
-        if(redisTemplate.opsForSet().isMember(KEY, theNotification.getPhoneNumber()) == true){
+        if(checkIfExist(theNotification.getPhoneNumber()) == true){
             logger.error("Notification Send Failed: The Number is in Blacklist");
 
             // updating the db
@@ -140,6 +140,16 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void whitelist(String number) {
         logger.info("remove to blacklist cache : " + number);
+
+        if(PhoneNumberValidator.phoneNumberNullCheck(number) == true ||
+                PhoneNumberValidator.isValidNumber(number) == false){
+            throw new InvalidRequestException("The Format of Phone Number must be : +91XXXXXXXXXX", ErrorCodes.BAD_REQUEST_ERROR);
+        }
+
+        if(checkIfExist(number) == false){
+            throw new InvalidRequestException("The number is already in whitelist", ErrorCodes.BAD_REQUEST_ERROR);
+        }
+
         try {
             redisTemplate.opsForSet().remove(KEY, number);
             blacklistRepository.whitelistNumber(number);

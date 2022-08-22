@@ -14,6 +14,7 @@ import com.meesho.notificationservice.services.NotificationService;
 import com.meesho.notificationservice.services.elasticsearch.ElasticSearchService;
 import com.meesho.notificationservice.services.kafka.ProducerService;
 import com.meesho.notificationservice.utils.validators.PhoneNumberValidator;
+import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,6 @@ public class NotificationRestController {
 
     @PostMapping("/sms/send")
     public ResponseEntity<Object> addNotificatonRequest(@RequestBody SmsRequest theSmsRequest) {
-
         try {
             return new ResponseEntity<>(notificationService.save(theSmsRequest), HttpStatus.OK);
         } catch (InvalidRequestException exc) {
@@ -63,7 +63,7 @@ public class NotificationRestController {
     @GetMapping("/sms/{request_id}")
     public ResponseEntity<Object> getNotificationInfo(@PathVariable("request_id") String requestId){
         try {
-            Optional<Notification> theNotification = notificationService.getById(requestId);
+            Notification theNotification = notificationService.getById(requestId).get();
             return new ResponseEntity<>(theNotification, HttpStatus.OK);
         }
         catch (Exception exc){

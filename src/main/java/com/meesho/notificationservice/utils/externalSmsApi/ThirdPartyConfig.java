@@ -8,6 +8,7 @@ import com.meesho.notificationservice.utils.constants.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,10 @@ public class ThirdPartyConfig {
     @Autowired
     private SmsBuilder smsBuilder;
 
-    private String url = AppConstants.URL;
-    private String key = AppConstants.KEY;
+    @Value("${api.url}")
+    private String url;
+    @Value("${api.key}")
+    private String key;
 
     public RestTemplate restTemplate = new RestTemplateBuilder()
                                         .rootUri(url)

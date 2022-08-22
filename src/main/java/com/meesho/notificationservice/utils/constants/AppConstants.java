@@ -15,12 +15,4 @@ public class AppConstants {
     // SQL Constants
     public static final String TABLE_NAME = "sms_requests";
 
-    // Third Party API Constants
-    public static final String KEY = "93ceffda-5941-11ea-9da9-025282c394f2";
-    public static final String URL = "https://api.imiconnect.in/resources/v1/messaging";
-
-    // Auth Constants
-
-    public static final String Auth_KEY = "23582437590817";
-
 }
