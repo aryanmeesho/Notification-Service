@@ -41,10 +41,15 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public Page<ElasticSearchModal> findAll(){ return (Page<ElasticSearchModal>) esRepository.findAll(); }
+    public Page<ElasticSearchModal> findAll(){
+        return (Page<ElasticSearchModal>) esRepository.findAll();
+    }
 
     @Override
-    public void deleteId(String id){ esRepository.deleteAll();}
+    public void deleteId(String id){
+        esRepository.deleteAll();
+    }
+
     @Override
     public void createSmsIndex(ElasticSearchModal elasticSearchModal) {
             logger.info("Creating Elastic Search SMS");
@@ -91,20 +96,19 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
             throw new Exception("Start Time has to be lesser than End Time");
         }
 
-        Criteria criteria = new Criteria("createdAt")
-                .greaterThan(lStartTime)
-                .lessThan(lEndTime);
+        Criteria criteria1 = new Criteria ("phoneNumber").matches(smsRequestBody.getPhoneNumber());
 
-        Query searchQuery = new CriteriaQuery(criteria);
+        Criteria criteria2 = new Criteria("createdAt")
+                .greaterThan(lStartTime)
+                .lessThan(lEndTime).and(criteria1);
+
+
+        Query searchQuery = new CriteriaQuery(criteria2);
         searchQuery.setPageable(PageRequest.of(pageNo, DEFAULT_PAGE_SIZE));
 
 
         SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
                     .search(searchQuery, ElasticSearchModal.class, IndexCoordinates.of(SMS_INDEX));
-
-//        if (smsRecordSearchHits.getTotalHits() <= pageNo * DEFAULT_PAGE_SIZE) {
-//            throw new Exception("No more results to show");
-//        }
 
         return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
                 .map(SearchHit::getContent).collect(Collectors.toList())).build();

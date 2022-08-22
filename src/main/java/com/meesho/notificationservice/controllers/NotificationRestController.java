@@ -102,7 +102,7 @@ public class NotificationRestController {
 
     @DeleteMapping("/blacklist")
     public  ResponseEntity<Object> removeBlacklist(@RequestBody BlacklistNumbers theBlacklistNumbers){
-        // unblock these numbers
+
         List<String> numbers = theBlacklistNumbers.getPhoneNumbers();
 
         for (String number : numbers) {
