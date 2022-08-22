@@ -120,7 +120,7 @@ public class NotificationRestController {
     }
 
     @GetMapping("/getAllES")
-    public Page<ElasticSearchModal> getAllElasticSearchModals(){
+    public Page<ElasticSearchModal> getAllElasticSearchModals() throws Exception {
         return elasticSearchService.findAll();
     }
 
@@ -130,7 +130,7 @@ public class NotificationRestController {
     }
 
     @DeleteMapping("/deleteES/{id}")
-    public void deleteByID(@PathVariable("id") String id){
+    public void deleteByID(@PathVariable("id") String id) throws Exception {
         elasticSearchService.deleteId(id);
     }
 

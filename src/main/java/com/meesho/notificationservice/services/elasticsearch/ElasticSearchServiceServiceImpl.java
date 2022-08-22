@@ -1,10 +1,13 @@
 package com.meesho.notificationservice.services.elasticsearch;
 
 import com.meesho.notificationservice.entity.ElasticSearchModal;
+import com.meesho.notificationservice.entity.enums.ErrorCodes;
 import com.meesho.notificationservice.entity.requests.ElasticSearchRequest;
 import com.meesho.notificationservice.entity.responses.ElasticSearchResponse;
+import com.meesho.notificationservice.exceptions.InvalidRequestException;
 import com.meesho.notificationservice.repositories.ESRepository;
 import com.meesho.notificationservice.utils.constants.AppConstants;
+import com.meesho.notificationservice.utils.validators.PhoneNumberValidator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
@@ -41,23 +44,34 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public Page<ElasticSearchModal> findAll(){
-        return (Page<ElasticSearchModal>) esRepository.findAll();
+    public Page<ElasticSearchModal> findAll() throws Exception {
+        try {
+            return (Page<ElasticSearchModal>) esRepository.findAll();
+        }
+        catch (Exception exc){
+            throw new Exception("findAll query Execution Failed in ESServiceImpl, Error : " + exc.getMessage());
+        }
     }
 
     @Override
-    public void deleteId(String id){
-        esRepository.deleteAll();
+    public void deleteId(String id) throws Exception {
+        logger.info("Deleting by ID : ", id);
+        try {
+            esRepository.deleteById(id);
+        }
+        catch (Exception exc){
+            throw new Exception("deleteId Query Execution Failed in ESServiceImpl, Error : " + exc.getMessage());
+        }
     }
 
     @Override
-    public void createSmsIndex(ElasticSearchModal elasticSearchModal) {
+    public void createSmsIndex(ElasticSearchModal elasticSearchModal) throws Exception {
             logger.info("Creating Elastic Search SMS");
             try {
                 ElasticSearchModal response = esRepository.save(elasticSearchModal);
             }
             catch (Exception exc){
-                logger.info("Some error: " + exc);
+                throw new Exception("createSmsIndex Query Execution Failed in ESServiceImpl, Error : " + exc.getMessage());
             }
     }
 
@@ -65,6 +79,11 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
     public ElasticSearchResponse findSmsContainsText(ElasticSearchRequest smsRequestBody, int pageNo) throws Exception {
 
         String searchText = smsRequestBody.getSearchText();
+
+        if(searchText.isEmpty() == true){
+            throw new InvalidRequestException("Please Provide the text", ErrorCodes.BAD_REQUEST_ERROR);
+        }
+        // Building Query
         QueryBuilder queryBuilder = QueryBuilders.wildcardQuery("message", searchText + "*");
 
         Query searchQuery = new NativeSearchQueryBuilder()
@@ -72,11 +91,17 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
                 .withPageable(PageRequest.of(pageNo, DEFAULT_PAGE_SIZE))
                 .build();
 
-        SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
-                .search(searchQuery, ElasticSearchModal.class, IndexCoordinates.of(SMS_INDEX));
+        // Executing Query
+        try {
+            SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
+                    .search(searchQuery, ElasticSearchModal.class, IndexCoordinates.of(SMS_INDEX));
 
-        return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
-                .map(SearchHit::getContent).collect(Collectors.toList())).build();
+            return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
+                    .map(SearchHit::getContent).collect(Collectors.toList())).build();
+        }
+        catch (Exception exc){
+            throw new Exception("findSmsContainsText Query Execution Failed in ESServiceImpl, Error : " + exc.getMessage());
+        }
     }
 
     @Override
@@ -92,10 +117,19 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
         LocalDateTime endTime = lEndTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
 
+        // Error Handling
         if (startTime.isAfter(endTime)) {
-            throw new Exception("Start Time has to be lesser than End Time");
+            throw new InvalidRequestException("Start time must be before than End Time", ErrorCodes.BAD_REQUEST_ERROR);
+        }
+        else if(PhoneNumberValidator.phoneNumberNullCheck(smsRequestBody.getPhoneNumber()) == true){
+            throw new InvalidRequestException("Please Provide the Phone Number", ErrorCodes.BAD_REQUEST_ERROR);
+        }
+        else if(PhoneNumberValidator.isValidNumber(smsRequestBody.getPhoneNumber()) == false ){
+            throw new InvalidRequestException("The Format of Phone Number must be : +91XXXXXXXXXX", ErrorCodes.BAD_REQUEST_ERROR);
         }
 
+
+        // Building Query
         Criteria criteria1 = new Criteria ("phoneNumber").matches(smsRequestBody.getPhoneNumber());
 
         Criteria criteria2 = new Criteria("createdAt")
@@ -107,11 +141,18 @@ public class ElasticSearchServiceServiceImpl implements ElasticSearchService {
         searchQuery.setPageable(PageRequest.of(pageNo, DEFAULT_PAGE_SIZE));
 
 
-        SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
+        // Executing the query
+        try {
+            SearchHits<ElasticSearchModal> smsRecordSearchHits = elasticsearchOperations
                     .search(searchQuery, ElasticSearchModal.class, IndexCoordinates.of(SMS_INDEX));
 
-        return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
-                .map(SearchHit::getContent).collect(Collectors.toList())).build();
+            return ElasticSearchResponse.builder().data(smsRecordSearchHits.stream()
+                    .map(SearchHit::getContent).collect(Collectors.toList())).build();
+        }
+        catch (Exception exc){
+            throw new Exception("FindBetweenTime Query Execution Failed in ESServiceImpl, Error : " + exc.getMessage());
+        }
+
     }
 
 }

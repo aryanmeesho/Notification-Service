@@ -10,8 +10,8 @@ public interface ElasticSearchService {
     public void createSmsIndex(ElasticSearchModal elasticSearchModal) throws Exception;
     public ElasticSearchResponse findSmsContainsText(ElasticSearchRequest smsRequestBody, int pageNo) throws Exception;
 
-    public Page<ElasticSearchModal> findAll();
-    public void deleteId(String id);
+    public Page<ElasticSearchModal> findAll() throws Exception;
+    public void deleteId(String id) throws Exception;
 
     public ElasticSearchResponse findBetweenTime(ElasticSearchRequest smsRequestBody, int pageNo) throws Exception;
 
