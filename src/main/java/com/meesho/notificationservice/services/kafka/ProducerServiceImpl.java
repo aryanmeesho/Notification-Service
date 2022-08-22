@@ -19,10 +19,15 @@ public class ProducerServiceImpl implements ProducerService{
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Override
-    public void sendId(String id){
+    public void sendId(String id) throws Exception {
         logger.info(String.format("id sent -> %s", id));
-        kafkaTemplate.send(TOPIC, id);
 
+        try {
+            kafkaTemplate.send(TOPIC, id);
+        }
+        catch (Exception exc){
+            throw new Exception("Kafka Producer Failed, Error : " + exc.getMessage());
+        }
     }
 
 }

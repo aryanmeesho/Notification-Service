@@ -21,7 +21,7 @@ public class NotificationserviceApplication {
 			log.info("Notification Service running...");
 		}
 		catch (Exception exc){
-			log.error("Notification Service is not running, Error : " , exc.getMessage());
+			log.error("Notification Service is not running, Error : " + exc.getMessage());
 		}
 	}
 }
