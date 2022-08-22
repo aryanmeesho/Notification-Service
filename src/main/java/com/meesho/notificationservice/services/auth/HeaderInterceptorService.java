@@ -22,23 +22,32 @@ public class HeaderInterceptorService implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        boolean flag = false;
         String authorization = request.getHeader("Authorization");
 
         if(authorization.contentEquals(Auth_KEY)){
-            flag = true;
             return  true;
         }
+
         throw new InvalidRequestException("Authorization token invalid", ErrorCodes.FORBIDDEN_ERROR);
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        HandlerInterceptor.super.postHandle(request,response,handler,modelAndView);
+       try {
+           HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+       }
+       catch (Exception exc){
+           throw new Exception("postHandle in HandleInterceptorService Failed, Error : " + exc.getMessage());
+       }
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        HandlerInterceptor.super.afterCompletion(request,response,handler,ex);
+        try {
+            HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+        }
+        catch (Exception exc){
+            throw new Exception("afterCompletion in HandleInterceptorService Failed, Error : " + exc.getMessage());
+        }
     }
 }
